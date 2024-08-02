@@ -1,0 +1,20 @@
+[
+    {
+        "id": 101,
+        "title": "Cook",
+        "description": "Cook Adobo",
+        "status": "PENDING"
+    },
+    {
+        "id": 102,
+        "title": "Eat",
+        "description": "Eat Adobo",
+        "status": "PENDING"
+    },
+    {
+        "id": 103,
+        "title": "Wash",
+        "description": "Wash Dishes",
+        "status": "PENDING"
+    }
+]
