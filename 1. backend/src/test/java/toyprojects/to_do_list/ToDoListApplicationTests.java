@@ -1,5 +1,7 @@
 package toyprojects.to_do_list;
 
+import java.net.URI;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
@@ -50,5 +52,47 @@ class ToDoListApplicationTests {
 		assertEquals(TaskStatus.PENDING.toString(), status);
 	}
 
-	
+	@Test
+	void shouldNotReturnAToDoItemWithAnUnknownId() {
+		ResponseEntity<String> response = restTemplate
+			.getForEntity("/todo/100", String.class);
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+	}
+
+	@Test
+	void shouldCreateANewToDoItem() {
+		ToDoItem newToDoItem = new ToDoItem(null, "Cook", "Cook Adobo");
+		ResponseEntity<Void> createResponse = restTemplate
+			.postForEntity("/todo", newToDoItem, Void.class);
+		assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+
+		URI locationOfNewToDoItem = createResponse.getHeaders().getLocation();
+		ResponseEntity<String> getResponse = restTemplate
+			.getForEntity(locationOfNewToDoItem, String.class);
+		assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+
+		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+		Number id = documentContext.read("$.id");
+		String title = documentContext.read("$.title");
+		String description = documentContext.read("$.description");
+		String status = documentContext.read("$.status").toString();
+
+		assertNotNull(id);
+		assertEquals(newToDoItem.getTitle(), title);
+		assertEquals(newToDoItem.getDescription(), description);
+		assertEquals(newToDoItem.getStatus().toString(), status);
+	}
+
+	@Test
+	void shouldNotCreateANewToDoItemUsingInvalidInput() {
+		ToDoItem newToDoItem = new ToDoItem(null, null, null);		
+		ResponseEntity<Void> createResponse = restTemplate
+			.postForEntity("/todo", newToDoItem, Void.class);
+		assertEquals(HttpStatus.BAD_REQUEST, createResponse.getStatusCode());
+	}
+
+	@Test
+	void shouldCreateAListOfNewToDoItems() {
+		
+	}
 }
