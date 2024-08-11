@@ -65,7 +65,7 @@ public class ToDoServiceImpl implements ToDoService {
 
     private void validateToDoItem(ToDoItem todo) {
         if (todo.getTitle() == null || todo.getTitle().isBlank()) {
-            throw new IllegalArgumentException("Title cannot be null");
+            throw new IllegalArgumentException("Title cannot be null or empty");
         }
     }
 

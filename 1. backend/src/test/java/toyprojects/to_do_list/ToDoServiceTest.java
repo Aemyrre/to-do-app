@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -99,7 +98,8 @@ public class ToDoServiceTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionForPassingInvalidInput() {
         ToDoItem invalidItem = new ToDoItem("  ", null);
-        assertThrows(IllegalArgumentException.class, () -> toDoService.saveToDoItem(invalidItem));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> toDoService.saveToDoItem(invalidItem));
+        assertEquals("Title cannot be null or empty", exception.getMessage());
     }
 
     @Test
@@ -108,6 +108,7 @@ public class ToDoServiceTest {
         toDoList.add(new ToDoItem(null, null));
         toDoList.add(new ToDoItem(null, null));
         toDoList.add(new ToDoItem(null, null));
-        assertThrows(IllegalArgumentException.class, () -> toDoService.saveAllToDoItems(toDoList));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> toDoService.saveAllToDoItems(toDoList));
+        assertEquals("Title cannot be null or empty", exception.getMessage()); 
     }
 }
