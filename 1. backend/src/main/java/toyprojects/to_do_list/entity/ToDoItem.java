@@ -4,8 +4,6 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,8 +27,7 @@ public class ToDoItem {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private TaskStatus status;
     
     // @Column(name = "createdAt")
@@ -43,6 +40,7 @@ public class ToDoItem {
 
 
     public ToDoItem() {
+        this.status = TaskStatus.PENDING;
     }
 
     public ToDoItem(Long id, String title, String description) {
