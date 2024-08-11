@@ -68,9 +68,20 @@ public class ToDoServiceTest {
         ToDoItem item = new ToDoItem("Cook", "Cook Breakfast");
         ToDoItem savedItem = toDoService.saveToDoItem(item);
         assertEquals(item.getStatus(), savedItem.getStatus());
-        ToDoItem updatedItem = toDoService.taskCompleted(savedItem.getId());
+        ToDoItem updatedItem = toDoService.changeToDoStatus(savedItem.getId());
         assertEquals(TaskStatus.COMPLETED, updatedItem.getStatus());
         assertEquals(updatedItem.getId(), savedItem.getId());
+    }
+
+    @Test
+    public void shouldReturnTaskStatusToPending() {
+        ToDoItem item = new ToDoItem("Cook", "Cook Breakfast");
+        ToDoItem savedItem = toDoService.saveToDoItem(item);
+        assertEquals(item.getStatus(), savedItem.getStatus());
+        ToDoItem updatedItem = toDoService.changeToDoStatus(savedItem.getId());
+        assertEquals(TaskStatus.COMPLETED, updatedItem.getStatus());
+        ToDoItem revertItemToPending = toDoService.changeToDoStatus(savedItem.getId());
+        assertEquals(TaskStatus.PENDING, revertItemToPending.getStatus());
     }
 
     @Test

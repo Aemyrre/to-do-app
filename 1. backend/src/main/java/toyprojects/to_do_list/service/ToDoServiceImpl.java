@@ -57,9 +57,13 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     @Transactional
-    public ToDoItem taskCompleted(Long id) {
+    public ToDoItem changeToDoStatus(Long id) {
         ToDoItem item = getToDoItemById(id);
-        item.setStatus(TaskStatus.COMPLETED);
+        if (item.getStatus() == TaskStatus.PENDING) {
+            item.setStatus(TaskStatus.COMPLETED);
+        } else {
+            item.setStatus(TaskStatus.PENDING);
+        }
         return item;
     }
 

@@ -8,7 +8,7 @@ public interface ToDoService {
     ToDoItem getToDoItemById(Long id);
     ToDoItem saveToDoItem(ToDoItem todo);
     void deleteToDoItem(Long id);
-    ToDoItem taskCompleted(Long id);
+    ToDoItem changeToDoStatus(Long id);
     List<ToDoItem> getAllToDoItems();
     void saveAllToDoItems(List<ToDoItem> toDoList);
 }
