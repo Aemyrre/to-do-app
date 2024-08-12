@@ -10,9 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -23,6 +26,7 @@ import toyprojects.to_do_list.repository.ToDoRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Sql(scripts = "/data.sql",executionPhase=ExecutionPhase.BEFORE_TEST_METHOD)
 class ToDoListApplicationTests {
 
     @Autowired
@@ -35,6 +39,31 @@ class ToDoListApplicationTests {
     void contextLoads() {
         assertNotNull(restTemplate);
     }
+
+	@Test
+	void shouldRetrieveAToDoItemWhenCalled() {
+		ResponseEntity<String> response = restTemplate
+			.getForEntity("/todo/101", String.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		Number id = documentContext.read("$.id");
+		String title = documentContext.read("$.title");
+		String description = documentContext.read("$.description");
+		String status = documentContext.read("$.status").toString();
+
+		assertEquals(101, id);
+		assertEquals("Cook", title);
+		assertEquals("Cook Adobo", description);
+		assertEquals("PENDING", status);
+	}
+
+	@Test
+	void shouldNotRetrieveAToDoItemUsingInvalidId() {
+		ResponseEntity<String> response = restTemplate
+			.getForEntity("/todo/100", String.class);
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+	}
 
     @Test
     void shouldReturnAToDoItemWhenDataIsSaved() {
@@ -126,4 +155,34 @@ class ToDoListApplicationTests {
 		assertEquals("Cook Adobo", description);
 		assertEquals(TaskStatus.PENDING.toString(), status);
     }
+
+	@Test
+	void shouldUpdatePendingStatusToCompleted() {
+		ResponseEntity<Void> putResponse = restTemplate
+			.exchange("/todo/101/statusUpdate", HttpMethod.PUT, null, Void.class);
+		assertEquals(HttpStatus.OK, putResponse.getStatusCode());
+
+		ResponseEntity<String> getResponse = restTemplate
+			.getForEntity("/todo/101", String.class);
+		assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+
+		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+		String status = documentContext.read("$.status").toString();
+		assertEquals("COMPLETED", status);
+	}
+
+	@Test
+	void shouldUpdateCompletedStatusToPending() {
+		ResponseEntity<Void> putResponse = restTemplate
+			.exchange("/todo/102/statusUpdate", HttpMethod.PUT, null, Void.class);
+		assertEquals(HttpStatus.OK, putResponse.getStatusCode());
+
+		ResponseEntity<String> getResponse = restTemplate
+			.getForEntity("/todo/102", String.class);
+		assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+
+		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+		String status = documentContext.read("$.status").toString();
+		assertEquals("PENDING", status);
+	}
 }
