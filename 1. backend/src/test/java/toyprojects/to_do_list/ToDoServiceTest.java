@@ -10,6 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
 
 import toyprojects.to_do_list.constants.TaskStatus;
@@ -89,20 +93,30 @@ public class ToDoServiceTest {
         List<ToDoItem> toDoList = new ArrayList<>();
         toDoList.add(new ToDoItem("Cook", "Cook Adobo"));
         toDoList.add(new ToDoItem("Eat", "Eat Adobo"));
-        toDoList.add(new ToDoItem("Wash", "Wash Dishes"));     
-        
+        toDoList.add(new ToDoItem("DishWash", "Wash Dishes"));     
         toDoRepository.saveAll(toDoList);
-        List<ToDoItem> getAllList = toDoService.getAllToDoItems();
-        
-        assertEquals(3, getAllList.size());
-        assertEquals(toDoList.get(0).getTitle(), getAllList.get(0).getTitle());
-        assertEquals(toDoList.get(2).getDescription(), getAllList.get(2).getDescription());
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<ToDoItem> getList = toDoService.getAllToDoItems(pageable);
+        List<ToDoItem> allItems = getList.getContent();
+
+        System.out.println("these are the list items:");
+        for (ToDoItem toDoItem : allItems) {
+            System.out.printf("id:%s, title:%s, description:%s, status:%s%n", toDoItem.getId(), toDoItem.getTitle(), toDoItem.getDescription(), toDoItem.getStatus());
+        }
+
+        assertEquals(3, allItems.size());
+        assertEquals("Cook", allItems.get(0).getTitle());
+        assertEquals(3, allItems.get(2).getId());
+        assertEquals("Eat Adobo", allItems.get(1).getDescription());
+        assertEquals(1, getList.getTotalPages());
     }
 
     @Test
     public void shouldNotReturnAnInvalidToDoListItems() {
-        List<ToDoItem> nullList = toDoService.getAllToDoItems();
-        System.out.println("See List: " + nullList);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        Page<ToDoItem> nullList = toDoService.getAllToDoItems(pageable);
+        System.out.println("See List: " + nullList.getContent());
         assertThat(nullList).isEmpty();
     }
 
