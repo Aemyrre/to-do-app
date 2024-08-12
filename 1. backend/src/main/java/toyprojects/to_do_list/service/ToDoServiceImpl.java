@@ -8,10 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
+import toyprojects.to_do_list.exception.ToDoItemNotFoundException;
 import toyprojects.to_do_list.repository.ToDoRepository;
+import toyprojects.to_do_list.validation.ToDoItemValidation;
 
 @Service
-public class ToDoServiceImpl implements ToDoService {
+public class ToDoServiceImpl extends ToDoItemValidation implements ToDoService {
 
     private final ToDoRepository toDoRepository;
 
@@ -39,7 +41,7 @@ public class ToDoServiceImpl implements ToDoService {
     @Transactional(readOnly = true)
     public ToDoItem getToDoItemById(Long id) {
         Optional<ToDoItem> toDoItem = toDoRepository.findById(id);
-        return toDoItem.orElse(null);
+        return toDoItem.orElseThrow(() -> new ToDoItemNotFoundException(id));
     }
 
     @Override
@@ -52,7 +54,11 @@ public class ToDoServiceImpl implements ToDoService {
     @Override
     @Transactional
     public void deleteToDoItem(Long id) {
-        toDoRepository.deleteById(id);
+        if (toDoRepository.findById(id).isPresent()) {
+            toDoRepository.deleteById(id);
+        } else {
+            throw new ToDoItemNotFoundException(id);
+        }
     }
 
     @Override
@@ -66,11 +72,4 @@ public class ToDoServiceImpl implements ToDoService {
         }
         return item;
     }
-
-    private void validateToDoItem(ToDoItem todo) {
-        if (todo.getTitle() == null || todo.getTitle().isBlank()) {
-            throw new IllegalArgumentException("Title cannot be null or empty");
-        }
-    }
-
 }

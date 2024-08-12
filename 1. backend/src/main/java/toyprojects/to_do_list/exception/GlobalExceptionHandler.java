@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
     
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(TransactionSystemException.class)
@@ -23,5 +23,11 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(cause.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>("Transaction error", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ToDoItemNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleToDoItemNotFoundException(ToDoItemNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Not Found", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 }
