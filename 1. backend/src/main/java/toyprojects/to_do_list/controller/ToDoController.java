@@ -3,6 +3,7 @@ package toyprojects.to_do_list.controller;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,6 +52,12 @@ public class ToDoController {
     public ResponseEntity<ToDoItem> updateToDoItem(@PathVariable Long id) {
         ToDoItem updatedToDoItem = toDoService.changeToDoStatus(id);      
         return ResponseEntity.ok(updatedToDoItem);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteToDoItem(@PathVariable Long id) {
+        toDoService.deleteToDoItem(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

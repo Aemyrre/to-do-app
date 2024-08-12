@@ -6,7 +6,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
+import toyprojects.to_do_list.exception.ToDoItemNotFoundException;
 import toyprojects.to_do_list.repository.ToDoRepository;
 import toyprojects.to_do_list.service.ToDoService;
 
@@ -45,23 +45,23 @@ public class ToDoServiceTest {
         assertEquals(item.getStatus(), getItem.getStatus());
     }
 
-    @Test
-    public void shouldReturnANullWhenAnInvalidItemIsRetrieved() {
-        ToDoItem item = new ToDoItem("Cook", "Cook Breakfast");
-        toDoService.saveToDoItem(item);
-        assertNull(toDoService.getToDoItemById(10L));
-    }
-
+    
     @Test
     public void shouldDeleteAToDoItemUsingId() {
         ToDoItem item = new ToDoItem("Cook", "Cook Breakfast");
         ToDoItem savedItem = toDoService.saveToDoItem(item);
         ToDoItem getItem = toDoService.getToDoItemById(savedItem.getId());
-        assertNotNull(getItem);
         toDoService.deleteToDoItem(getItem.getId());
-        ToDoItem getDeletedItem = toDoService.getToDoItemById(savedItem.getId());
-        assertNull(getDeletedItem);
-    }   
+        ToDoItemNotFoundException ex = assertThrows(ToDoItemNotFoundException.class, () -> toDoService.getToDoItemById(getItem.getId()));
+        assertEquals("Id " + getItem.getId() + " Not Found", ex.getMessage());
+    }  
+    
+    @Test
+    public void shouldThrowErrorWhenAnInvalidIdIsRetrieved() {
+        Long nonExistentId = 10000L;
+        ToDoItemNotFoundException ex = assertThrows(ToDoItemNotFoundException.class, () -> toDoService.getToDoItemById(nonExistentId));
+        assertEquals("Id " + nonExistentId + " Not Found", ex.getMessage());
+    }
 
     @Test
     public void shouldUpdateTaskStatusToCompleted() {

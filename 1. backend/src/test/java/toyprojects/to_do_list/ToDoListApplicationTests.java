@@ -63,6 +63,13 @@ class ToDoListApplicationTests {
 		ResponseEntity<String> response = restTemplate
 			.getForEntity("/todo/100", String.class);
 		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		String error = documentContext.read("$.error");
+		String message = documentContext.read("$.message");
+		
+		assertEquals("Not Found", error);
+		assertEquals("Id 100 Not Found", message);
 	}
 
     @Test
@@ -184,5 +191,26 @@ class ToDoListApplicationTests {
 		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
 		String status = documentContext.read("$.status").toString();
 		assertEquals("PENDING", status);
+	}
+
+	@Test
+	void shouldDeleteAnExistingToDoItem() {
+		ResponseEntity<Void> deleteResponse = restTemplate
+			.exchange("/todo/101", HttpMethod.DELETE, null, Void.class);
+		assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+	}
+
+	@Test
+	void shouldThrowAnErrorWhenDeletingANonExistingId() {
+		ResponseEntity<String> deleteResponse = restTemplate
+			.exchange("/todo/10000", HttpMethod.DELETE, null, String.class);
+		assertEquals(HttpStatus.NOT_FOUND, deleteResponse.getStatusCode());
+
+		DocumentContext documentContext = JsonPath.parse(deleteResponse.getBody());
+		String error = documentContext.read("$.error");
+		String message = documentContext.read("$.message");
+		
+		assertEquals("Not Found", error);
+		assertEquals("Id 10000 Not Found", message);	
 	}
 }
