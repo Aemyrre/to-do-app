@@ -3,6 +3,8 @@ package toyprojects.to_do_list.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,9 +48,8 @@ public class ToDoServiceImpl extends ToDoItemValidation implements ToDoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ToDoItem> getAllToDoItems() {
-        List<ToDoItem> toDoList = (List<ToDoItem>) toDoRepository.findAll();
-        return toDoList;
+    public Page<ToDoItem> getAllToDoItems(Pageable pageable) {
+        return toDoRepository.findAll(pageable);
     }
 
     @Override

@@ -2,6 +2,7 @@ package toyprojects.to_do_list;
 
 import java.net.URI;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
+import net.minidev.json.JSONArray;
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
 import toyprojects.to_do_list.repository.ToDoRepository;
@@ -212,5 +214,40 @@ class ToDoListApplicationTests {
 		
 		assertEquals("Not Found", error);
 		assertEquals("Id 10000 Not Found", message);	
+	}
+
+	@Test
+	void shouldReturnAllToDoListItems() {
+		ResponseEntity<String> response = restTemplate
+			.getForEntity("/todo/all", String.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		System.out.println("this is the response body: " + response.getBody());
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		int numberOfElements = documentContext.read("$.numberOfElements");
+		JSONArray ids = documentContext.read("$..id");
+		JSONArray titles = documentContext.read("$..title");
+
+		assertEquals(3, numberOfElements);
+		assertThat(ids).containsExactly(101, 102, 103);
+		assertThat(titles).containsExactly("Cook", "Exercise", "Read");
+	}
+
+	@Test
+	void shouldReturnSortedAndPaginatedToDoListItems() {
+		ResponseEntity<String> response = restTemplate
+			.getForEntity("/todo/all?page=2&size=1&sort=title", String.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		System.out.println("this is the response body: " + response.getBody());
+
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		JSONArray ids = documentContext.read("$..id");
+		JSONArray titles = documentContext.read("$..title");
+		int numberOfElements = documentContext.read("$.numberOfElements");
+
+		assertEquals(1, numberOfElements);
+		assertThat(ids).containsExactly(103);
+		assertThat(titles).containsExactly("Read");
 	}
 }
