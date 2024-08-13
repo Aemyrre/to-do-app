@@ -60,9 +60,9 @@ public class ToDoController {
     }
     
     @PutMapping("/{id}/statusUpdate")
-    public ResponseEntity<ToDoItem> updateToDoItem(@PathVariable Long id) {
-        ToDoItem updatedToDoItem = toDoService.changeToDoStatus(id);      
-        return ResponseEntity.ok(updatedToDoItem);
+    public ResponseEntity<Void> updateToDoItem(@PathVariable Long id) {
+        toDoService.changeToDoStatus(id);      
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
