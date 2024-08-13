@@ -17,14 +17,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import jakarta.validation.Valid;
 import toyprojects.to_do_list.entity.ToDoItem;
 import toyprojects.to_do_list.service.ToDoService;
+import toyprojects.to_do_list.validation.ToDoItemValidation;
 
 
 
 @RestController
 @RequestMapping("/todo")
-public class ToDoController {
+public class ToDoController extends ToDoItemValidation {
     
     private final ToDoService toDoService;
 
@@ -49,7 +51,7 @@ public class ToDoController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createToDoItem(@RequestBody ToDoItem todo) {
+    public ResponseEntity<Void> createToDoItem(@Valid @RequestBody ToDoItem todo) {
         ToDoItem savedToDoItem = toDoService.saveToDoItem(todo);
         URI locationofNewToDoItem = UriComponentsBuilder
             .fromPath("/todo/{id}")
@@ -62,6 +64,12 @@ public class ToDoController {
     public ResponseEntity<ToDoItem> updateToDoItem(@PathVariable Long id) {
         ToDoItem updatedToDoItem = toDoService.changeToDoStatus(id);      
         return ResponseEntity.ok(updatedToDoItem);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateToDoItem(@PathVariable Long id, @Valid @RequestBody ToDoItem toDoItem) {
+        toDoService.updateToDoItem(id, toDoItem);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")

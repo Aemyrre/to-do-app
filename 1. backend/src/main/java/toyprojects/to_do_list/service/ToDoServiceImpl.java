@@ -55,7 +55,7 @@ public class ToDoServiceImpl extends ToDoItemValidation implements ToDoService {
     @Override
     @Transactional
     public void deleteToDoItem(Long id) {
-        if (toDoRepository.findById(id).isPresent()) {
+        if (toDoRepository.existsById(id)) {
             toDoRepository.deleteById(id);
         } else {
             throw new ToDoItemNotFoundException(id);
@@ -72,5 +72,17 @@ public class ToDoServiceImpl extends ToDoItemValidation implements ToDoService {
             item.setStatus(TaskStatus.PENDING);
         }
         return item;
+    }
+
+    @Override
+    @Transactional
+    public ToDoItem updateToDoItem(Long id, ToDoItem toDoItem) {
+        if (!toDoRepository.existsById(id)) {
+            throw new ToDoItemNotFoundException(id);
+        }
+
+        validateToDoItem(toDoItem);
+        ToDoItem updatedToDoItem = new ToDoItem(id, toDoItem.getTitle(), toDoItem.getDescription());
+        return toDoRepository.save(updatedToDoItem);
     }
 }
