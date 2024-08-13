@@ -31,4 +31,10 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("Not Found", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(ToDoIdValidationException.class)
+    public ResponseEntity<ErrorResponse> handleToDoIdValidationException(ToDoIdValidationException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Id not the same", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 }
