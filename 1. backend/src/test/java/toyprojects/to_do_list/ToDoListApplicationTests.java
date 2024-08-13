@@ -250,4 +250,34 @@ class ToDoListApplicationTests {
 		assertThat(ids).containsExactly(103);
 		assertThat(titles).containsExactly("Read");
 	}
+
+	@Test
+	void shouldUpdateAValidToDoItem() {
+		ToDoItem updateDoItem = new ToDoItem(null, "Read", "Read HeadFirst Java");
+		HttpEntity<ToDoItem> newToDoitem = new HttpEntity<>(updateDoItem);
+		ResponseEntity<Void> putResponse = restTemplate
+			.exchange("/todo/103", HttpMethod.PUT, newToDoitem, Void.class);
+		assertEquals(HttpStatus.OK, putResponse.getStatusCode());
+
+		ResponseEntity<String> getResponse = restTemplate
+			.getForEntity("/todo/103", String.class);
+		assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+
+		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+		String title = documentContext.read("$.title");
+		String description = documentContext.read("$.description");
+
+		assertEquals(updateDoItem.getTitle(), title);
+		assertEquals(updateDoItem.getDescription(), description);
+	}
+
+	@Test
+	void shouldNotUpdateWithAnInvalidToDoItem() {
+		ToDoItem updaToDoItem = new ToDoItem(null, " ", "Read HeadFirst Java");
+		HttpEntity<ToDoItem> newToDoItem = new HttpEntity<>(updaToDoItem);
+
+		ResponseEntity<Void> putResponse = restTemplate
+			.exchange("/todo/103", HttpMethod.PUT, newToDoItem, Void.class);
+		assertEquals(HttpStatus.BAD_REQUEST, putResponse.getStatusCode());		
+	}
 }

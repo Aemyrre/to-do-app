@@ -19,6 +19,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
 import toyprojects.to_do_list.exception.ToDoItemNotFoundException;
+import toyprojects.to_do_list.exception.ToDoItemValidationException;
 import toyprojects.to_do_list.repository.ToDoRepository;
 import toyprojects.to_do_list.service.ToDoService;
 
@@ -49,6 +50,12 @@ public class ToDoServiceTest {
         assertEquals(item.getStatus(), getItem.getStatus());
     }
 
+    @Test
+    public void shouldNotCreateAnInvalidToDoItemWhenSaved() {
+        ToDoItem item = new ToDoItem(null, null, null);
+        ToDoItemValidationException ex = assertThrows(ToDoItemValidationException.class, () -> toDoService.saveToDoItem(item));
+        assertEquals("Title cannot be null or empty", ex.getMessage());
+    }
     
     @Test
     public void shouldDeleteAToDoItemUsingId() {
@@ -121,19 +128,46 @@ public class ToDoServiceTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionForPassingInvalidInput() {
+    public void shouldThrowToDoItemValidationExceptionForPassingInvalidInput() {
         ToDoItem invalidItem = new ToDoItem("  ", null);
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> toDoService.saveToDoItem(invalidItem));
+        ToDoItemValidationException exception = assertThrows(ToDoItemValidationException.class, () -> toDoService.saveToDoItem(invalidItem));
         assertEquals("Title cannot be null or empty", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionForPassingInvalidInputs() {
+    public void shouldThrowToDoItemValidationExceptionForPassingInvalidInputs() {
         List<ToDoItem> toDoList = new ArrayList<>();
         toDoList.add(new ToDoItem(null, null));
         toDoList.add(new ToDoItem(null, null));
         toDoList.add(new ToDoItem(null, null));
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> toDoService.saveAllToDoItems(toDoList));
+        ToDoItemValidationException exception = assertThrows(ToDoItemValidationException.class, () -> toDoService.saveAllToDoItems(toDoList));
         assertEquals("Title cannot be null or empty", exception.getMessage()); 
+    }
+
+    @Test
+    public void shouldUpdateAValidToDoItem() {
+        ToDoItem todo = new ToDoItem("Read", "Read HeadFirst Java");
+        toDoRepository.save(todo);
+        ToDoItem updatedToDoItem = new ToDoItem(1L, "Read and Code", "Practice while reading HeadFirst Java");
+        ToDoItem savedToDoItem = toDoService.updateToDoItem(updatedToDoItem.getId(), updatedToDoItem);
+        assertEquals(updatedToDoItem.getTitle(), savedToDoItem.getTitle());
+        assertEquals(updatedToDoItem.getDescription(), savedToDoItem.getDescription());
+        assertEquals(updatedToDoItem.getStatus(), savedToDoItem.getStatus());
+    }
+
+    @Test
+    public void shouldNotUpdateANonExistentId() {
+        ToDoItem updatedToDoItem = new ToDoItem(null,"Read and Code", "Practice while reading HeadFirst Java");
+        ToDoItemNotFoundException ex = assertThrows(ToDoItemNotFoundException.class, () -> toDoService.updateToDoItem(1000L, updatedToDoItem));
+        assertEquals("Id 1000 Not Found", ex.getMessage());
+    }
+
+    @Test
+    public void shouldNotUpdateAnInvalidToDoItem() {
+        ToDoItem todo = new ToDoItem("Read", "Read HeadFirst Java");
+        toDoRepository.save(todo);
+        ToDoItem updatedToDoItem = new ToDoItem(1L, " ", "Practice while reading HeadFirst Java");
+        ToDoItemValidationException ex = assertThrows(ToDoItemValidationException.class, () -> toDoService.updateToDoItem(1L, updatedToDoItem));
+        assertEquals("Title cannot be null or empty", ex.getMessage());
     }
 }

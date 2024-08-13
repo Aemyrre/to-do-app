@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(ToDoItemValidationException.class)
+    public ResponseEntity<ErrorResponse> handleToDoItemValidationException(ToDoItemValidationException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Title cannot be null or empty", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(TransactionSystemException.class)
