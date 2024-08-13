@@ -20,13 +20,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import jakarta.validation.Valid;
 import toyprojects.to_do_list.entity.ToDoItem;
 import toyprojects.to_do_list.service.ToDoService;
-import toyprojects.to_do_list.validation.ToDoItemValidation;
 
 
 
 @RestController
 @RequestMapping("/todo")
-public class ToDoController extends ToDoItemValidation {
+public class ToDoController {
     
     private final ToDoService toDoService;
 

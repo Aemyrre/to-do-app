@@ -280,4 +280,22 @@ class ToDoListApplicationTests {
 			.exchange("/todo/103", HttpMethod.PUT, newToDoItem, Void.class);
 		assertEquals(HttpStatus.BAD_REQUEST, putResponse.getStatusCode());		
 	}
+
+	@Test
+	void shouldNotUpdateWithAnInvalidId() {
+		ToDoItem updateDoItem = new ToDoItem(null, "Read", "Read HeadFirst Java");
+		HttpEntity<ToDoItem> httpEntity = new HttpEntity<>(updateDoItem);
+		ResponseEntity<Void> putResponse = restTemplate
+			.exchange("/todo/1000", HttpMethod.PUT, httpEntity, Void.class);
+		assertEquals(HttpStatus.NOT_FOUND, putResponse.getStatusCode());
+	}
+
+	@Test
+	void shouldNotUpdateWithAnInvalidToDoItemId() {
+		ToDoItem updateDoItem = new ToDoItem(100L, "Read", "Read HeadFirst Java");
+		HttpEntity<ToDoItem> httpEntity = new HttpEntity<>(updateDoItem);
+		ResponseEntity<Void> putResponse = restTemplate
+			.exchange("/todo/103", HttpMethod.PUT, httpEntity, Void.class);
+		assertEquals(HttpStatus.BAD_REQUEST, putResponse.getStatusCode());
+	}
 }

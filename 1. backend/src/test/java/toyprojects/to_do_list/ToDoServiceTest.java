@@ -18,6 +18,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
+import toyprojects.to_do_list.exception.ToDoIdValidationException;
 import toyprojects.to_do_list.exception.ToDoItemNotFoundException;
 import toyprojects.to_do_list.exception.ToDoItemValidationException;
 import toyprojects.to_do_list.repository.ToDoRepository;
@@ -147,12 +148,15 @@ public class ToDoServiceTest {
     @Test
     public void shouldUpdateAValidToDoItem() {
         ToDoItem todo = new ToDoItem("Read", "Read HeadFirst Java");
-        toDoRepository.save(todo);
+        ToDoItem savedToDoItem = toDoRepository.save(todo);
+
         ToDoItem updatedToDoItem = new ToDoItem(1L, "Read and Code", "Practice while reading HeadFirst Java");
-        ToDoItem savedToDoItem = toDoService.updateToDoItem(updatedToDoItem.getId(), updatedToDoItem);
-        assertEquals(updatedToDoItem.getTitle(), savedToDoItem.getTitle());
-        assertEquals(updatedToDoItem.getDescription(), savedToDoItem.getDescription());
-        assertEquals(updatedToDoItem.getStatus(), savedToDoItem.getStatus());
+        ToDoItem newSavedToDoItem = toDoService.updateToDoItem(savedToDoItem.getId(), updatedToDoItem);
+        
+        assertEquals(savedToDoItem.getId(), newSavedToDoItem.getId());
+        assertEquals(updatedToDoItem.getTitle(), newSavedToDoItem.getTitle());
+        assertEquals(updatedToDoItem.getDescription(), newSavedToDoItem.getDescription());
+        assertEquals(updatedToDoItem.getStatus(), newSavedToDoItem.getStatus());
     }
 
     @Test
@@ -169,5 +173,14 @@ public class ToDoServiceTest {
         ToDoItem updatedToDoItem = new ToDoItem(1L, " ", "Practice while reading HeadFirst Java");
         ToDoItemValidationException ex = assertThrows(ToDoItemValidationException.class, () -> toDoService.updateToDoItem(1L, updatedToDoItem));
         assertEquals("Title cannot be null or empty", ex.getMessage());
+    }
+
+    @Test
+    public void shouldNotUpdateWithAnInvalidUpdateId() {
+        ToDoItem todo = new ToDoItem("Read", "Read HeadFirst Java");
+        toDoRepository.save(todo);
+        ToDoItem updatedToDoItem = new ToDoItem(1000L, " ", "Practice while reading HeadFirst Java");
+        ToDoIdValidationException ex = assertThrows(ToDoIdValidationException.class, () -> toDoService.updateToDoItem(1L, updatedToDoItem));
+        assertEquals("Ids' are not the same.", ex.getMessage());
     }
 }

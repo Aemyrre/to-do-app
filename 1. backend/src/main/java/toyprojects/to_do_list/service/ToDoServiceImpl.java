@@ -10,12 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
+import toyprojects.to_do_list.exception.ToDoIdValidationException;
 import toyprojects.to_do_list.exception.ToDoItemNotFoundException;
+import toyprojects.to_do_list.exception.ToDoItemValidationException;
 import toyprojects.to_do_list.repository.ToDoRepository;
-import toyprojects.to_do_list.validation.ToDoItemValidation;
 
 @Service
-public class ToDoServiceImpl extends ToDoItemValidation implements ToDoService {
+public class ToDoServiceImpl implements ToDoService {
 
     private final ToDoRepository toDoRepository;
 
@@ -80,9 +81,19 @@ public class ToDoServiceImpl extends ToDoItemValidation implements ToDoService {
         if (!toDoRepository.existsById(id)) {
             throw new ToDoItemNotFoundException(id);
         }
+        
+        if (!id.equals(toDoItem.getId()) && toDoItem.getId() != null) {
+            throw new ToDoIdValidationException();
+        }
 
         validateToDoItem(toDoItem);
         ToDoItem updatedToDoItem = new ToDoItem(id, toDoItem.getTitle(), toDoItem.getDescription());
         return toDoRepository.save(updatedToDoItem);
+    }
+
+    private void validateToDoItem(ToDoItem todo) {
+        if (todo.getTitle() == null || todo.getTitle().isBlank()) {
+            throw new ToDoItemValidationException();
+        }
     }
 }
