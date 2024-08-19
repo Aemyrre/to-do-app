@@ -14,5 +14,6 @@ public interface ToDoService {
     ToDoItem changeToDoStatus(Long id);
     Page<ToDoItem> getAllToDoItems(Pageable pageable);
     void saveAllToDoItems(List<ToDoItem> toDoList);
+    void deleteAllToDoItems();
     ToDoItem updateToDoItem(Long id, ToDoItem toDoItem);
 }

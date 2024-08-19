@@ -57,6 +57,26 @@ public class ToDoServiceTest {
         ToDoItemValidationException ex = assertThrows(ToDoItemValidationException.class, () -> toDoService.saveToDoItem(item));
         assertEquals("Title cannot be null or empty", ex.getMessage());
     }
+
+    @Test
+    public void shouldSaveAllToDoItems() {
+        List<ToDoItem> toDoList = new ArrayList<>();
+        toDoList.add(new ToDoItem("Cook", "Cook Adobo"));
+        toDoList.add(new ToDoItem("Eat", "Eat Adobo"));
+        toDoList.add(new ToDoItem("DishWash", "Wash Dishes"));     
+        toDoService.saveAllToDoItems(toDoList);
+        assertEquals(3, toDoRepository.count());
+    }
+
+    @Test
+    public void shouldNotSaveToDoItemsWithInvalidInput() {
+        List<ToDoItem> toDoList = new ArrayList<>();
+        toDoList.add(new ToDoItem(" ", "Cook Adobo"));
+        toDoList.add(new ToDoItem(null, "Eat Adobo"));
+        toDoList.add(new ToDoItem("DishWash", "Wash Dishes"));
+        Exception ex = assertThrows(ToDoItemValidationException.class, () -> toDoService.saveAllToDoItems(toDoList));
+        assertEquals("Title cannot be null or empty", ex.getMessage());
+    }
     
     @Test
     public void shouldDeleteAToDoItemUsingId() {
@@ -67,6 +87,18 @@ public class ToDoServiceTest {
         ToDoItemNotFoundException ex = assertThrows(ToDoItemNotFoundException.class, () -> toDoService.getToDoItemById(getItem.getId()));
         assertEquals("Id " + getItem.getId() + " Not Found", ex.getMessage());
     }  
+
+    @Test
+    public void shouldDeleteAllToDoItems() {
+        List<ToDoItem> toDoList = new ArrayList<>();
+        toDoList.add(new ToDoItem("Cook", "Cook Adobo"));
+        toDoList.add(new ToDoItem("Eat", "Eat Adobo"));
+        toDoList.add(new ToDoItem("DishWash", "Wash Dishes"));     
+        toDoRepository.saveAll(toDoList);
+        assertEquals(toDoList.get(0).getTitle(), toDoService.getToDoItemById(1L).getTitle());
+        toDoService.deleteAllToDoItems();
+        assertThat(toDoRepository.count()).isEqualTo(0);
+    }
     
     @Test
     public void shouldThrowErrorWhenAnInvalidIdIsRetrieved() {

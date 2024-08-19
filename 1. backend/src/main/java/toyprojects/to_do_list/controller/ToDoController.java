@@ -1,6 +1,7 @@
 package toyprojects.to_do_list.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +59,13 @@ public class ToDoController {
             .toUri();
         return ResponseEntity.created(locationofNewToDoItem).build();
     }
+
+    @PostMapping("/saveAll")
+    public ResponseEntity<Void> postMethodName(@Valid @RequestBody List<ToDoItem> toDoItems) {
+        toDoService.saveAllToDoItems(toDoItems);
+        return ResponseEntity.ok().build();
+    }
+    
     
     @PutMapping("/{id}/statusUpdate")
     public ResponseEntity<Void> updateToDoItem(@PathVariable Long id) {
@@ -74,6 +82,12 @@ public class ToDoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteToDoItem(@PathVariable Long id) {
         toDoService.deleteToDoItem(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/all") 
+    public ResponseEntity<Void> deleteAllToDoItems() {
+        toDoService.deleteAllToDoItems();
         return ResponseEntity.noContent().build();
     }
 

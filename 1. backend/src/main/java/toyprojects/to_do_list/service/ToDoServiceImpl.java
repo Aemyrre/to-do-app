@@ -65,6 +65,12 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     @Transactional
+    public void deleteAllToDoItems() {
+        toDoRepository.deleteAll();       
+    }
+
+    @Override
+    @Transactional
     public ToDoItem changeToDoStatus(Long id) {
         ToDoItem item = getToDoItemById(id);
         if (item.getStatus() == TaskStatus.PENDING) {
