@@ -75,8 +75,10 @@ public class ToDoServiceImpl implements ToDoService {
         ToDoItem item = getToDoItemById(id);
         if (item.getStatus() == TaskStatus.PENDING) {
             item.setStatus(TaskStatus.COMPLETED);
+            item.setCompletedAt();
         } else {
             item.setStatus(TaskStatus.PENDING);
+            item.setCompletedAt();
         }
         return item;
     }

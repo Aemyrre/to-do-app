@@ -1,6 +1,10 @@
 package toyprojects.to_do_list.entity;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +14,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import toyprojects.to_do_list.constants.TaskStatus;
 
@@ -26,24 +33,46 @@ public class ToDoItem {
     @NotBlank(message = "title cannot be blank")
     private String title;
     
-    @Column(name = "description", nullable = false)
+    @Column(name = "description")
     private String description;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
     
-    // @Column(name = "createdAt")
-    // @Temporal(TemporalType.DATE)    
-    // private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false)
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate createdAt;
 
-    // @Column(name = "completedAt")
-    // @Temporal(TemporalType.DATE)
-    // private LocalDateTime completedAt;
+    @Column(name = "completed_at")
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate completedAt;
+
+    @Transient
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
 
     public ToDoItem() {
         this.status = TaskStatus.PENDING;
+        this.createdAt = LocalDate.now();
+        this.completedAt = null;
+    }
+
+    // All fields for testing
+    public ToDoItem(Long id, String title, String description, TaskStatus status, String createdAt, String completedAt) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.createdAt = LocalDate.parse(createdAt, formatter);
+
+        if (completedAt != null) {
+            this.completedAt = LocalDate.parse(completedAt, formatter);   
+        } else {
+            this.completedAt = null;
+        }
     }
 
     public ToDoItem(Long id, String title, String description) {
@@ -51,17 +80,23 @@ public class ToDoItem {
         this.title = title;
         this.description = description;
         this.status = TaskStatus.PENDING;
+        this.createdAt = LocalDate.now();
+        this.completedAt = null;
     }
 
     public ToDoItem(String title, String description) {
         this.title = title;
         this.description = description;
         this.status = TaskStatus.PENDING;
+        this.createdAt = LocalDate.now();
+        this.completedAt = null;
     }
 
     public ToDoItem(String title) {
         this.title = title;
         this.status = TaskStatus.PENDING;
+        this.createdAt = LocalDate.now();
+        this.completedAt = null;
     }
 
     public Long getId() {
@@ -96,23 +131,34 @@ public class ToDoItem {
         this.status = status;
     }
 
-    // public LocalDateTime getCreatedAt() {
-    //     return this.createdAt;
-    // }
+    public LocalDate getCreatedAt() {
+        return this.createdAt;
+    }
 
     // @PrePersist
-    // public void setCreatedAt() {
-    //     this.createdAt = LocalDateTime.now();
+    public void setCreatedAt() {
+        this.createdAt = LocalDate.now();
+    }
+
+    // public void setCreatedAt(String createdAt) {
+    //     this.createdAt = LocalDate.parse(createdAt, formatter);
     // }
 
-    // public LocalDateTime getCompletedAt() {
-    //     return this.completedAt;
-    // }
+    public LocalDate getCompletedAt() {
+        return this.completedAt;
+    }
 
-    // public void setCompletedAt() {
-    //     this.completedAt = LocalDateTime.now();
-    // }
+    public void setCompletedAt() {
+        if (status == TaskStatus.PENDING) {
+            this.completedAt = null;
+        } else {
+            this.completedAt = LocalDate.now();
+        }
+    }
 
+    // public void setCompletedAt(String completedAt) {
+    //     this.completedAt = LocalDate.parse(completedAt, formatter);
+    // }
 
     @Override
     public boolean equals(Object o) {

@@ -3,18 +3,24 @@
         "id": 101,
         "title": "Cook",
         "description": "Cook Adobo",
-        "status": "PENDING"
+        "status": "COMPLETED",
+        "createdAt":"2024-08-20",
+        "completedAt":"2024-08-21"
     },
     {
         "id": 102,
         "title": "Eat",
         "description": "Eat Adobo",
-        "status": "PENDING"
+        "status": "PENDING",
+        "createdAt":"2024-08-20",
+        "completedAt":null
     },
     {
         "id": 103,
         "title": "Wash",
         "description": "Wash Dishes",
-        "status": "PENDING"
+        "status": "PENDING",
+        "createdAt":"2024-08-20",
+        "completedAt":null
     }
 ]
