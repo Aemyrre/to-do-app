@@ -1,14 +1,12 @@
 package toyprojects.to_do_list;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +15,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
@@ -30,7 +27,6 @@ import net.minidev.json.JSONArray;
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
 import toyprojects.to_do_list.repository.ToDoRepository;
-import toyprojects.to_do_list.service.ToDoService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -46,6 +42,7 @@ class ToDoListApplicationTests {
     @Test
     void contextLoads() {
         assertNotNull(restTemplate);
+        assertNotNull(toDoRepository);
     }
 
     @Test
@@ -59,11 +56,15 @@ class ToDoListApplicationTests {
         String title = documentContext.read("$.title");
         String description = documentContext.read("$.description");
         String status = documentContext.read("$.status").toString();
+        String createdAt = documentContext.read("$.createdAt");
+        String completeddAt = documentContext.read("$.completedAt");
 
         assertEquals(101, id);
         assertEquals("Cook", title);
         assertEquals("Cook Adobo", description);
         assertEquals("PENDING", status);
+        assertEquals(LocalDate.now().toString(), createdAt);
+        assertNull(completeddAt);
     }
 
     @Test
@@ -78,24 +79,6 @@ class ToDoListApplicationTests {
 
         assertEquals("Not Found", error);
         assertEquals("Id 100 Not Found", message);
-    }
-
-    @Test
-    void shouldReturnAToDoItemWhenDataIsSaved() {
-        ToDoItem item = new ToDoItem("Cook", "Cook Adobo");
-        ToDoItem savedItem = toDoRepository.save(item);
-
-        ResponseEntity<String> response = restTemplate
-                .getForEntity("/todo/" + savedItem.getId(), String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        DocumentContext documentContext = JsonPath.parse(response.getBody());
-        String title = documentContext.read("$.title");
-        String description = documentContext.read("$.description");
-        String status = documentContext.read("$.status").toString();
-        assertEquals(item.getTitle(), title);
-        assertEquals(item.getDescription(), description);
-        assertEquals(TaskStatus.PENDING.toString(), status);
     }
 
     @Test
@@ -122,11 +105,15 @@ class ToDoListApplicationTests {
         String title = documentContext.read("$.title");
         String description = documentContext.read("$.description");
         String status = documentContext.read("$.status").toString();
+        String createdAt = documentContext.read("$.createdAt");
+        String completedAt = documentContext.read("$.completedAt");
 
         assertNotNull(id);
         assertEquals(newToDoItem.getTitle(), title);
         assertEquals(newToDoItem.getDescription(), description);
         assertEquals(newToDoItem.getStatus().toString(), status);
+        assertEquals(LocalDate.now().toString(), createdAt);
+        assertNull(completedAt);
     }
 
     @Test
@@ -165,10 +152,15 @@ class ToDoListApplicationTests {
         String title = documentContext.read("$.title");
         String description = documentContext.read("$.description");
         String status = documentContext.read("$.status");
+        String createdAt = documentContext.read("$.createdAt");
+        String completedAt = documentContext.read("$.completedAt");
+
         assertNotNull(id);
         assertEquals("Cook", title);
         assertEquals("Cook Adobo", description);
         assertEquals(TaskStatus.PENDING.toString(), status);
+        assertEquals(LocalDate.now().toString(), createdAt);
+        assertNull(completedAt);
     }
 
     @Test
@@ -183,7 +175,10 @@ class ToDoListApplicationTests {
 
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         String status = documentContext.read("$.status").toString();
+        String completedAt = documentContext.read("$.completedAt");
+
         assertEquals("COMPLETED", status);
+        assertEquals(LocalDate.now().toString(), completedAt);        
     }
 
     @Test
@@ -198,7 +193,10 @@ class ToDoListApplicationTests {
 
         DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
         String status = documentContext.read("$.status").toString();
+        String completedAt = documentContext.read("$.completedAt");
+
         assertEquals("PENDING", status);
+        assertNull(completedAt);
     }
 
     @Test

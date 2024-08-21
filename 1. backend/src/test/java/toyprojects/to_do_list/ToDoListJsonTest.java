@@ -27,15 +27,15 @@ public class ToDoListJsonTest {
     @BeforeEach
     void setUp() {
         toDoItems = Arrays.array(
-                new ToDoItem(101L, "Cook", "Cook Adobo"),
-                new ToDoItem(102L, "Eat", "Eat Adobo"),
-                new ToDoItem(103L, "Wash", "Wash Dishes"));
+                new ToDoItem(101L, "Cook", "Cook Adobo", TaskStatus.COMPLETED, "2024-08-20", "2024-08-21"),
+                new ToDoItem(102L, "Eat", "Eat Adobo", TaskStatus.PENDING, "2024-08-20", null),
+                new ToDoItem(103L, "Wash", "Wash Dishes", TaskStatus.PENDING, "2024-08-20", null));
     }
 
     @Test
     void toDoSerializationJsonTest() throws IOException {
-        ToDoItem toDo = new ToDoItem(1L, "Breakfast", "Drink Coffee and Eat Bread");
-
+        ToDoItem toDo = new ToDoItem(1L, "Breakfast", "Drink Coffee and Eat Bread", TaskStatus.PENDING, "2024-08-20", null);
+        
         assertThat(json.write(toDo)).isStrictlyEqualToJson("single.json");
         assertThat(json.write(toDo)).hasJsonPathNumberValue("@.id");
         assertThat(json.write(toDo)).extractingJsonPathNumberValue("@.id").isEqualTo(1);
@@ -45,6 +45,9 @@ public class ToDoListJsonTest {
         assertThat(json.write(toDo)).extractingJsonPathStringValue("@.description").isEqualTo(toDo.getDescription());
         assertThat(json.write(toDo)).hasJsonPathStringValue("@.status");
         assertThat(json.write(toDo)).extractingJsonPathStringValue("@.status").isEqualTo("PENDING");
+        assertThat(json.write(toDo)).hasJsonPathStringValue("@.createdAt");
+        assertThat(json.write(toDo)).extractingJsonPathStringValue("@.createdAt").isEqualTo("2024-08-20");
+        assertThat(json.write(toDo)).extractingJsonPathStringValue("@.completedAt").isNull();
     }
 
     @Test
@@ -54,14 +57,18 @@ public class ToDoListJsonTest {
                     "id":1,
                     "title":"Breakfast",
                     "description":"Drink Coffee and Eat Bread",
-                    "status":"PENDING"
+                    "status":"COMPLETED",
+                    "createdAt":"2024-08-20",
+                    "completedAt":"2024-08-21"
                 }
                 """;
-        assertThat(json.parse(expected)).isEqualTo(new ToDoItem(1L, "Breakfast", "Drink Coffee and Eat Bread"));
+        assertThat(json.parse(expected)).isEqualTo(new ToDoItem(1L, "Breakfast", "Drink Coffee and Eat Bread", TaskStatus.COMPLETED, "2024-08-20", "2024-08-21"));
         assertThat(json.parseObject(expected).getId()).isEqualTo(1);
         assertThat(json.parseObject(expected).getTitle()).isEqualTo("Breakfast");
         assertThat(json.parseObject(expected).getDescription()).isEqualTo("Drink Coffee and Eat Bread");
-        assertThat(json.parseObject(expected).getStatus()).isEqualTo(TaskStatus.PENDING);
+        assertThat(json.parseObject(expected).getStatus()).isEqualTo(TaskStatus.COMPLETED);
+        assertThat(json.parseObject(expected).getCreatedAt()).isEqualTo("2024-08-20");
+        assertThat(json.parseObject(expected).getCompletedAt()).isEqualTo("2024-08-21");
     }
 
     @Test
@@ -77,19 +84,25 @@ public class ToDoListJsonTest {
                         "id": 101,
                         "title": "Cook",
                         "description": "Cook Adobo",
-                        "status": "PENDING"
+                        "status": "COMPLETED",
+                        "createdAt":"2024-08-20",
+                        "completedAt":"2024-08-21"
                     },
                     {
                         "id": 102,
                         "title": "Eat",
                         "description": "Eat Adobo",
-                        "status": "PENDING"
+                        "status": "PENDING",
+                        "createdAt":"2024-08-20",
+                        "completedAt":null
                     },
                     {
                         "id": 103,
                         "title": "Wash",
                         "description": "Wash Dishes",
-                        "status": "PENDING"
+                        "status": "PENDING",
+                        "createdAt":"2024-08-20",
+                        "completedAt":null
                     }
                 ]
                 """;

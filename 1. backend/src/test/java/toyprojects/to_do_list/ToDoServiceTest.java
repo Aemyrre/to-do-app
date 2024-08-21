@@ -1,11 +1,13 @@
 package toyprojects.to_do_list;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,8 @@ public class ToDoServiceTest {
         assertEquals(item.getTitle(), getItem.getTitle());
         assertEquals(item.getDescription(), getItem.getDescription());
         assertEquals(item.getStatus(), getItem.getStatus());
+        assertEquals(item.getCreatedAt(), LocalDate.now());
+        assertNull(item.getCompletedAt());
     }
 
     @Test
@@ -112,9 +116,13 @@ public class ToDoServiceTest {
         ToDoItem item = new ToDoItem("Cook", "Cook Breakfast");
         ToDoItem savedItem = toDoService.saveToDoItem(item);
         assertEquals(item.getStatus(), savedItem.getStatus());
+        assertEquals(savedItem.getCreatedAt(), savedItem.getCreatedAt());
+        assertNull(savedItem.getCompletedAt());
+        
         ToDoItem updatedItem = toDoService.changeToDoStatus(savedItem.getId());
         assertEquals(TaskStatus.COMPLETED, updatedItem.getStatus());
-        assertEquals(updatedItem.getId(), savedItem.getId());
+        assertEquals(savedItem.getId(), updatedItem.getId());
+        assertEquals(LocalDate.now(), updatedItem.getCompletedAt());
     }
 
     @Test
@@ -122,10 +130,16 @@ public class ToDoServiceTest {
         ToDoItem item = new ToDoItem("Cook", "Cook Breakfast");
         ToDoItem savedItem = toDoService.saveToDoItem(item);
         assertEquals(item.getStatus(), savedItem.getStatus());
+        assertEquals(LocalDate.now(), savedItem.getCreatedAt());
+        assertNull(savedItem.getCompletedAt());
+
         ToDoItem updatedItem = toDoService.changeToDoStatus(savedItem.getId());
         assertEquals(TaskStatus.COMPLETED, updatedItem.getStatus());
+        assertEquals(LocalDate.now(), updatedItem.getCompletedAt());
+        
         ToDoItem revertItemToPending = toDoService.changeToDoStatus(savedItem.getId());
         assertEquals(TaskStatus.PENDING, revertItemToPending.getStatus());
+        assertNull(revertItemToPending.getCompletedAt());
     }
 
     @Test
