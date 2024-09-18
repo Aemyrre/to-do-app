@@ -9,11 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
 
 @JsonTest
+@WithMockUser(username="Ramyr")
 public class ToDoListJsonTest {
 
     @Autowired
@@ -27,14 +29,14 @@ public class ToDoListJsonTest {
     @BeforeEach
     void setUp() {
         toDoItems = Arrays.array(
-                new ToDoItem(101L, "Cook", "Cook Adobo", TaskStatus.COMPLETED, "2024-08-20", "2024-08-21"),
-                new ToDoItem(102L, "Eat", "Eat Adobo", TaskStatus.PENDING, "2024-08-20", null),
-                new ToDoItem(103L, "Wash", "Wash Dishes", TaskStatus.PENDING, "2024-08-20", null));
+                new ToDoItem(101L, "Cook", "Cook Adobo", TaskStatus.COMPLETED, "2024-08-20", "2024-08-21", "Ramyr"),
+                new ToDoItem(102L, "Eat", "Eat Adobo", TaskStatus.PENDING, "2024-08-20", null, "Ramyr"),
+                new ToDoItem(103L, "Wash", "Wash Dishes", TaskStatus.PENDING, "2024-08-20", null, "Ramyr"));
     }
 
     @Test
     void toDoSerializationJsonTest() throws IOException {
-        ToDoItem toDo = new ToDoItem(1L, "Breakfast", "Drink Coffee and Eat Bread", TaskStatus.PENDING, "2024-08-20", null);
+        ToDoItem toDo = new ToDoItem(1L, "Breakfast", "Drink Coffee and Eat Bread", TaskStatus.PENDING, "2024-08-20", null, "Ramyr");
         
         assertThat(json.write(toDo)).isStrictlyEqualToJson("single.json");
         assertThat(json.write(toDo)).hasJsonPathNumberValue("@.id");
@@ -59,10 +61,11 @@ public class ToDoListJsonTest {
                     "description":"Drink Coffee and Eat Bread",
                     "status":"COMPLETED",
                     "createdAt":"2024-08-20",
-                    "completedAt":"2024-08-21"
+                    "completedAt":"2024-08-21",
+                    "owner":"Ramyr"
                 }
                 """;
-        assertThat(json.parse(expected)).isEqualTo(new ToDoItem(1L, "Breakfast", "Drink Coffee and Eat Bread", TaskStatus.COMPLETED, "2024-08-20", "2024-08-21"));
+        assertThat(json.parse(expected)).isEqualTo(new ToDoItem(1L, "Breakfast", "Drink Coffee and Eat Bread", TaskStatus.COMPLETED, "2024-08-20", "2024-08-21", "Ramyr"));
         assertThat(json.parseObject(expected).getId()).isEqualTo(1);
         assertThat(json.parseObject(expected).getTitle()).isEqualTo("Breakfast");
         assertThat(json.parseObject(expected).getDescription()).isEqualTo("Drink Coffee and Eat Bread");
@@ -86,7 +89,8 @@ public class ToDoListJsonTest {
                         "description": "Cook Adobo",
                         "status": "COMPLETED",
                         "createdAt":"2024-08-20",
-                        "completedAt":"2024-08-21"
+                        "completedAt":"2024-08-21",
+                        "owner":"Ramyr"
                     },
                     {
                         "id": 102,
@@ -94,7 +98,8 @@ public class ToDoListJsonTest {
                         "description": "Eat Adobo",
                         "status": "PENDING",
                         "createdAt":"2024-08-20",
-                        "completedAt":null
+                        "completedAt":null,
+                        "owner":"Ramyr"
                     },
                     {
                         "id": 103,
@@ -102,7 +107,8 @@ public class ToDoListJsonTest {
                         "description": "Wash Dishes",
                         "status": "PENDING",
                         "createdAt":"2024-08-20",
-                        "completedAt":null
+                        "completedAt":null,
+                        "owner":"Ramyr"
                     }
                 ]
                 """;

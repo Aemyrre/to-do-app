@@ -29,6 +29,10 @@ public class ToDoItem {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(name = "owner", nullable = false)
+    @NotBlank(message = "owner cannot be blank")
+    private String owner;
+
     @Column(name = "title", nullable = false)
     @NotBlank(message = "title cannot be blank")
     private String title;
@@ -60,13 +64,27 @@ public class ToDoItem {
         this.completedAt = null;
     }
 
+    public String getOwner() {
+        return this.owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public DateTimeFormatter getFormatter() {
+        return this.formatter;
+    }
+
+
     // All fields for testing
-    public ToDoItem(Long id, String title, String description, TaskStatus status, String createdAt, String completedAt) {
+    public ToDoItem(Long id, String title, String description, TaskStatus status, String createdAt, String completedAt, String owner) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.status = status;
         this.createdAt = LocalDate.parse(createdAt, formatter);
+        this.owner = owner;
 
         if (completedAt != null) {
             this.completedAt = LocalDate.parse(completedAt, formatter);   
@@ -75,28 +93,31 @@ public class ToDoItem {
         }
     }
 
-    public ToDoItem(Long id, String title, String description) {
+    public ToDoItem(Long id, String title, String description, String owner) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.status = TaskStatus.PENDING;
         this.createdAt = LocalDate.now();
         this.completedAt = null;
+        this.owner = owner;
     }
 
-    public ToDoItem(String title, String description) {
+    public ToDoItem(String title, String description, String owner) {
         this.title = title;
         this.description = description;
         this.status = TaskStatus.PENDING;
         this.createdAt = LocalDate.now();
         this.completedAt = null;
+        this.owner = owner;
     }
 
-    public ToDoItem(String title) {
+    public ToDoItem(String title, String owner) {
         this.title = title;
         this.status = TaskStatus.PENDING;
         this.createdAt = LocalDate.now();
         this.completedAt = null;
+        this.owner = owner;
     }
 
     public Long getId() {

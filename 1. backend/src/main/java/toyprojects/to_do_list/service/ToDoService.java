@@ -6,14 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import toyprojects.to_do_list.entity.ToDoItem;
+import toyprojects.to_do_list.entity.ToDoItemRequest;
 
 public interface ToDoService {
     ToDoItem getToDoItemById(Long id);
-    ToDoItem saveToDoItem(ToDoItem todo);
-    void deleteToDoItem(Long id);
-    ToDoItem changeToDoStatus(Long id);
     Page<ToDoItem> getAllToDoItems(Pageable pageable);
-    void saveAllToDoItems(List<ToDoItem> toDoList);
+    ToDoItem saveToDoItem(ToDoItemRequest todo, String owner);
+    void saveAllToDoItems(List<ToDoItemRequest> toDoList, String owner);
+    void deleteToDoItem(Long id);
     void deleteAllToDoItems();
-    ToDoItem updateToDoItem(Long id, ToDoItem toDoItem);
+    ToDoItem changeToDoStatus(Long id);
+    ToDoItem updateToDoItem(Long id, ToDoItem toDoItem, String owner);
 }

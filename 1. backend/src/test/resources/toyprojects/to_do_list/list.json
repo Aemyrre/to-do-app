@@ -5,7 +5,8 @@
         "description": "Cook Adobo",
         "status": "COMPLETED",
         "createdAt":"2024-08-20",
-        "completedAt":"2024-08-21"
+        "completedAt":"2024-08-21",
+        "owner":"Ramyr"
     },
     {
         "id": 102,
@@ -13,7 +14,8 @@
         "description": "Eat Adobo",
         "status": "PENDING",
         "createdAt":"2024-08-20",
-        "completedAt":null
+        "completedAt":null,
+        "owner":"Ramyr"
     },
     {
         "id": 103,
@@ -21,6 +23,7 @@
         "description": "Wash Dishes",
         "status": "PENDING",
         "createdAt":"2024-08-20",
-        "completedAt":null
+        "completedAt":null,
+        "owner":"Ramyr"
     }
 ]

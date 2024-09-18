@@ -1,5 +1,6 @@
 package toyprojects.to_do_list.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import toyprojects.to_do_list.constants.TaskStatus;
 import toyprojects.to_do_list.entity.ToDoItem;
+import toyprojects.to_do_list.entity.ToDoItemRequest;
 import toyprojects.to_do_list.exception.ToDoIdValidationException;
 import toyprojects.to_do_list.exception.ToDoItemNotFoundException;
 import toyprojects.to_do_list.exception.ToDoItemValidationException;
@@ -26,18 +28,21 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     @Transactional
-    public ToDoItem saveToDoItem(ToDoItem todo) {
+    public ToDoItem saveToDoItem(ToDoItemRequest todo, String owner) {
         validateToDoItem(todo);
-        return toDoRepository.save(todo);
+        ToDoItem toDoItem = new ToDoItem(todo.getTitle(), todo.getDescription(), owner);
+        return toDoRepository.save(toDoItem);
     }
 
     @Override
     @Transactional
-    public void saveAllToDoItems(List<ToDoItem> toDoList) {
-        for (ToDoItem toDoItem : toDoList) {
+    public void saveAllToDoItems(List<ToDoItemRequest> toDoList, String owner) {
+        List<ToDoItem> validatedToDoList = new ArrayList<>();
+        for (ToDoItemRequest toDoItem : toDoList) {
             validateToDoItem(toDoItem);
+            validatedToDoList.add(new ToDoItem(toDoItem.getTitle(), toDoItem.getDescription(), owner));
         }
-        toDoRepository.saveAll(toDoList);
+        toDoRepository.saveAll(validatedToDoList);
     }
 
     @Override
@@ -56,7 +61,7 @@ public class ToDoServiceImpl implements ToDoService {
     @Override
     @Transactional
     public void deleteToDoItem(Long id) {
-        if (toDoRepository.existsById(id)) {
+        if (toDoRepository.existsByIdAndOwner(id)) {
             toDoRepository.deleteById(id);
         } else {
             throw new ToDoItemNotFoundException(id);
@@ -66,7 +71,7 @@ public class ToDoServiceImpl implements ToDoService {
     @Override
     @Transactional
     public void deleteAllToDoItems() {
-        toDoRepository.deleteAll();       
+        toDoRepository.deleteAllByOwner();       
     }
 
     @Override
@@ -85,8 +90,8 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     @Transactional
-    public ToDoItem updateToDoItem(Long id, ToDoItem toDoItem) {
-        if (!toDoRepository.existsById(id)) {
+    public ToDoItem updateToDoItem(Long id, ToDoItem toDoItem, String owner) {
+        if (!toDoRepository.existsByIdAndOwner(id)) {
             throw new ToDoItemNotFoundException(id);
         }
         
@@ -95,11 +100,17 @@ public class ToDoServiceImpl implements ToDoService {
         }
 
         validateToDoItem(toDoItem);
-        ToDoItem updatedToDoItem = new ToDoItem(id, toDoItem.getTitle(), toDoItem.getDescription());
+        ToDoItem updatedToDoItem = new ToDoItem(id, toDoItem.getTitle(), toDoItem.getDescription(), owner);
         return toDoRepository.save(updatedToDoItem);
     }
 
     private void validateToDoItem(ToDoItem todo) {
+        if (todo.getTitle() == null || todo.getTitle().isBlank()) {
+            throw new ToDoItemValidationException();
+        }
+    }
+
+    private void validateToDoItem(ToDoItemRequest todo) {
         if (todo.getTitle() == null || todo.getTitle().isBlank()) {
             throw new ToDoItemValidationException();
         }

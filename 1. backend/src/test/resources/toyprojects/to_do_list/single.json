@@ -4,5 +4,6 @@
    "description":"Drink Coffee and Eat Bread",
    "status":"PENDING",
    "createdAt":"2024-08-20",
-   "completedAt":null
+   "completedAt":null,
+   "owner":"Ramyr"
 }
