@@ -1,71 +1,62 @@
-// package toyprojects.to_do_list;
+package toyprojects.to_do_list;
 
-// import java.net.URI;
-// import java.time.LocalDate;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
-// import static org.assertj.core.api.Assertions.assertThat;
-// import static org.junit.jupiter.api.Assertions.assertEquals;
-// import static org.junit.jupiter.api.Assertions.assertNotNull;
-// import static org.junit.jupiter.api.Assertions.assertNull;
-// import org.junit.jupiter.api.Test;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.boot.test.web.client.TestRestTemplate;
-// import org.springframework.http.HttpEntity;
-// import org.springframework.http.HttpHeaders;
-// import org.springframework.http.HttpMethod;
-// import org.springframework.http.HttpStatus;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.test.annotation.DirtiesContext;
-// import org.springframework.test.context.jdbc.Sql;
-// import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import toyprojects.to_do_list.repository.ToDoRepository;
 
-// import com.jayway.jsonpath.DocumentContext;
-// import com.jayway.jsonpath.JsonPath;
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Sql(scripts = "/data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+@Import(TestSecurityConfig.class)
+@WithMockJwt(subject = "Ramyr")
+class ToDoListApplicationTests {
 
-// import net.minidev.json.JSONArray;
-// import toyprojects.to_do_list.constants.TaskStatus;
-// import toyprojects.to_do_list.entity.ToDoItem;
-// import toyprojects.to_do_list.repository.ToDoRepository;
+    @Autowired
+    TestRestTemplate restTemplate;
 
-// @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-// @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-// @Sql(scripts = "/data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-// class ToDoListApplicationTests {
+    @Autowired
+    ToDoRepository toDoRepository;
 
-//     @Autowired
-//     TestRestTemplate restTemplate;
+    @Test
+    void contextLoads() {
+        assertNotNull(restTemplate);
+        assertNotNull(toDoRepository);
+    }
 
-//     @Autowired
-//     ToDoRepository toDoRepository;
+    @Test
+    void shouldRetrieveAToDoItemWhenCalled() {
+        ResponseEntity<String> response = restTemplate
+                .getForEntity("/todo/101", String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
 
-//     @Test
-//     void contextLoads() {
-//         assertNotNull(restTemplate);
-//         assertNotNull(toDoRepository);
-//     }
+        // DocumentContext documentContext = JsonPath.parse(response.getBody());
+        // Number id = documentContext.read("$.id");
+        // String title = documentContext.read("$.title");
+        // String description = documentContext.read("$.description");
+        // String status = documentContext.read("$.status").toString();
+        // String createdAt = documentContext.read("$.createdAt");
+        // String completeddAt = documentContext.read("$.completedAt");
+        // String owner = documentContext.read("$.owner");
 
-//     @Test
-//     void shouldRetrieveAToDoItemWhenCalled() {
-//         ResponseEntity<String> response = restTemplate
-//                 .getForEntity("/todo/101", String.class);
-//         assertEquals(HttpStatus.OK, response.getStatusCode());
-
-//         DocumentContext documentContext = JsonPath.parse(response.getBody());
-//         Number id = documentContext.read("$.id");
-//         String title = documentContext.read("$.title");
-//         String description = documentContext.read("$.description");
-//         String status = documentContext.read("$.status").toString();
-//         String createdAt = documentContext.read("$.createdAt");
-//         String completeddAt = documentContext.read("$.completedAt");
-
-//         assertEquals(101, id);
-//         assertEquals("Cook", title);
-//         assertEquals("Cook Adobo", description);
-//         assertEquals("PENDING", status);
-//         assertEquals(LocalDate.now().toString(), createdAt);
-//         assertNull(completeddAt);
-//     }
+        // assertEquals(101, id);
+        // assertEquals("Cook", title);
+        // assertEquals("Cook Adobo", description);
+        // assertEquals("PENDING", status);
+        // assertEquals(LocalDate.now().toString(), createdAt);
+        // assertNull(completeddAt);
+        // assertEquals("Ramyr", owner);
+    }
 
 //     @Test
 //     void shouldNotRetrieveAToDoItemUsingInvalidId() {
@@ -387,4 +378,4 @@
 // 		assertThat(ids).isEmpty();
 // 		assertThat(titles).isEmpty();
 // 	}
-// }
+}

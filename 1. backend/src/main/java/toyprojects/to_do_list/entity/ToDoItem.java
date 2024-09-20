@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,6 +24,7 @@ import toyprojects.to_do_list.constants.TaskStatus;
 
 @Entity
 @Table(name = "to_do")
+@JsonIgnoreProperties({"formatter"})
 public class ToDoItem {
 
     @Id
@@ -85,6 +87,20 @@ public class ToDoItem {
         this.status = status;
         this.createdAt = LocalDate.parse(createdAt, formatter);
         this.owner = owner;
+
+        if (completedAt != null) {
+            this.completedAt = LocalDate.parse(completedAt, formatter);   
+        } else {
+            this.completedAt = null;
+        }
+    }
+
+    public ToDoItem(Long id, String title, String description, TaskStatus status, String createdAt, String completedAt) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.createdAt = LocalDate.parse(createdAt, formatter);
 
         if (completedAt != null) {
             this.completedAt = LocalDate.parse(completedAt, formatter);   

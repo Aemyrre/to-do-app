@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.validation.Valid;
-import toyprojects.to_do_list.entity.CurrentOwner;
 import toyprojects.to_do_list.entity.ToDoItem;
 import toyprojects.to_do_list.entity.ToDoItemRequest;
 import toyprojects.to_do_list.service.ToDoService;
@@ -37,7 +35,8 @@ public class ToDoController {
         this.toDoService = toDoService;
     }
 
-    @PostAuthorize("returnObject.body.owner == principal.attributes['sub']")
+    // @PostAuthorize("returnObject.body.owner == principal.attributes['sub']")
+    // @PostAuthorize("returnObject != null")
     @GetMapping("/{requestedId}")
     public ResponseEntity<ToDoItem> getToDoItem(@PathVariable Long requestedId) {
         ToDoItem getToDoItem = toDoService.getToDoItemById(requestedId);
@@ -47,7 +46,7 @@ public class ToDoController {
         return ResponseEntity.ok(getToDoItem);   
     }
 
-    @PostAuthorize("returnObject.body.owner == principal.attributes['sub']")
+    // @PostAuthorize("returnObject.body.owner == principal.attributes['sub']")
     @GetMapping("/all")
     public ResponseEntity<Page<ToDoItem>> getAllToDoItem(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "id,asc") String[] sort) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by(sort[0]).ascending());
@@ -56,8 +55,8 @@ public class ToDoController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createToDoItem(@Valid @RequestBody ToDoItemRequest todo, @CurrentOwner String owner) {
-        ToDoItem savedToDoItem = toDoService.saveToDoItem(todo, owner);
+    public ResponseEntity<Void> createToDoItem(@Valid @RequestBody ToDoItemRequest todo) {
+        ToDoItem savedToDoItem = toDoService.saveToDoItem(todo);
         URI locationofNewToDoItem = UriComponentsBuilder
             .fromPath("/todo/{id}")
             .buildAndExpand(savedToDoItem.getId())
@@ -66,8 +65,8 @@ public class ToDoController {
     }
 
     @PostMapping("/saveAll")
-    public ResponseEntity<Void> saveAllToDoItems(@Valid @RequestBody List<ToDoItemRequest> toDoItems, @CurrentOwner String owner) {
-        toDoService.saveAllToDoItems(toDoItems, owner);
+    public ResponseEntity<Void> saveAllToDoItems(@Valid @RequestBody List<ToDoItemRequest> toDoItems) {
+        toDoService.saveAllToDoItems(toDoItems);
         return ResponseEntity.ok().build();
     }
     
@@ -79,8 +78,8 @@ public class ToDoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateToDoItem(@PathVariable Long id, @Valid @RequestBody ToDoItem toDoItem, @CurrentOwner String owner) {
-        toDoService.updateToDoItem(id, toDoItem, owner);
+    public ResponseEntity<Void> updateToDoItem(@PathVariable Long id, @Valid @RequestBody ToDoItemRequest toDoItem) {
+        toDoService.updateToDoItem(id, toDoItem);
         return ResponseEntity.ok().build();
     }
 

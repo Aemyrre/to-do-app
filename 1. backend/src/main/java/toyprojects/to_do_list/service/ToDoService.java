@@ -11,10 +11,11 @@ import toyprojects.to_do_list.entity.ToDoItemRequest;
 public interface ToDoService {
     ToDoItem getToDoItemById(Long id);
     Page<ToDoItem> getAllToDoItems(Pageable pageable);
-    ToDoItem saveToDoItem(ToDoItemRequest todo, String owner);
-    void saveAllToDoItems(List<ToDoItemRequest> toDoList, String owner);
+    ToDoItem saveToDoItem(ToDoItemRequest todo);
+    void saveAllToDoItems(List<ToDoItemRequest> toDoList);
     void deleteToDoItem(Long id);
     void deleteAllToDoItems();
     ToDoItem changeToDoStatus(Long id);
-    ToDoItem updateToDoItem(Long id, ToDoItem toDoItem, String owner);
+    ToDoItem updateToDoItem(Long id, ToDoItemRequest toDoItem);
+    String getCurrentUserSubject();
 }
