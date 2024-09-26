@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### exclusion of application.properties file ###
-*.properties
-./src/main/resources/application.properties
-*.pem
+# *.properties
+# ./src/main/resources/application.properties
+# *.pem
 # **/security/
