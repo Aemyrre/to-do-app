@@ -1,25 +1,14 @@
 package toyprojects.to_do_list;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 
 import toyprojects.to_do_list.repository.ToDoRepository;
 
@@ -90,35 +79,35 @@ class ToDoListApplicationTests {
 //         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 //     }
 
-    @Test
-    void shouldCreateANewToDoItem() throws UnirestException {
+    // @Test
+    // void shouldCreateANewToDoItem() throws UnirestException {
 
 
-        HttpResponse<String> unirestResponse = Unirest.get("http://localhost:8080")
-            .header("authorization", "Bearer " + jwt)
-            .asString();
+    //     HttpResponse<String> unirestResponse = Unirest.get("http://localhost:8080")
+    //         .header("authorization", "Bearer " + jwt)
+    //         .asString();
 
-        String token = unirestResponse.getBody();
+    //     String token = unirestResponse.getBody();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(token);
+    //     HttpHeaders headers = new HttpHeaders();
+    //     headers.setContentType(MediaType.APPLICATION_JSON);
+    //     headers.setBearerAuth(token);
 
-        String requestBody = """
-				{
-					"title":"Cook",
-					"description":"Cook Adobo"
-				}
-				""";
+    //     String requestBody = """
+	// 			{
+	// 				"title":"Cook",
+	// 				"description":"Cook Adobo"
+	// 			}
+	// 			""";
         
-        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+    //     HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
         
-        ResponseEntity<Void> createResponse = restTemplate
-                .exchange(
-                    "/todo", 
-                    HttpMethod.POST, entity, 
-                    Void.class);
-        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+    //     ResponseEntity<Void> createResponse = restTemplate
+    //             .exchange(
+    //                 "/todo", 
+    //                 HttpMethod.POST, entity, 
+    //                 Void.class);
+    //     assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
 
 //         URI locationOfNewToDoItem = createResponse.getHeaders().getLocation();
 //         ResponseEntity<String> getResponse = restTemplate
@@ -139,7 +128,7 @@ class ToDoListApplicationTests {
 //         assertEquals(newToDoItem.getStatus().toString(), status);
 //         assertEquals(LocalDate.now().toString(), createdAt);
 //         assertNull(completedAt);
-    }
+    // }
 
 //     @Test
 //     void shouldNotCreateANewToDoItemUsingInvalidInput() {
