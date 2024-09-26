@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,13 +28,14 @@ import toyprojects.to_do_list.repository.ToDoRepository;
 import toyprojects.to_do_list.service.ToDoService;
 
 @SpringBootTest
-@DirtiesContext(classMode=DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@WithMockJwt(subject="Ramyr")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Import(TestSecurityConfig.class)
+@WithMockJwt(subject = "Ramyr")
 public class ToDoServiceTest {
 
     @Autowired
     private ToDoRepository toDoRepository;
-    
+
     @Autowired
     private ToDoService toDoService;
 
@@ -69,7 +71,7 @@ public class ToDoServiceTest {
         List<ToDoItemRequest> toDoList = new ArrayList<>();
         toDoList.add(new ToDoItemRequest("Cook", "Cook Adobo"));
         toDoList.add(new ToDoItemRequest("Eat", "Eat Adobo"));
-        toDoList.add(new ToDoItemRequest("DishWash", "Wash Dishes"));     
+        toDoList.add(new ToDoItemRequest("DishWash", "Wash Dishes"));
         toDoService.saveAllToDoItems(toDoList);
         assertEquals(3, toDoRepository.count());
     }
@@ -83,7 +85,7 @@ public class ToDoServiceTest {
         Exception ex = assertThrows(ToDoItemValidationException.class, () -> toDoService.saveAllToDoItems(toDoList));
         assertEquals("Title cannot be null or empty", ex.getMessage());
     }
-    
+
     @Test
     public void shouldDeleteAToDoItemUsingId() {
         ToDoItemRequest item = new ToDoItemRequest("Cook", "Cook Breakfast");
@@ -91,20 +93,20 @@ public class ToDoServiceTest {
         toDoService.deleteToDoItem(savedItem.getId());
         ToDoItemNotFoundException ex = assertThrows(ToDoItemNotFoundException.class, () -> toDoService.getToDoItemById(savedItem.getId()));
         assertEquals("Id Not Found", ex.getMessage());
-    }  
+    }
 
     @Test
     public void shouldDeleteAllToDoItems() {
         List<ToDoItemRequest> toDoList = new ArrayList<>();
         toDoList.add(new ToDoItemRequest("Cook", "Cook Adobo"));
         toDoList.add(new ToDoItemRequest("Eat", "Eat Adobo"));
-        toDoList.add(new ToDoItemRequest("DishWash", "Wash Dishes"));     
+        toDoList.add(new ToDoItemRequest("DishWash", "Wash Dishes"));
         toDoService.saveAllToDoItems(toDoList);
         assertEquals(toDoList.get(0).getTitle(), toDoService.getToDoItemById(1L).getTitle());
         toDoService.deleteAllToDoItems();
         assertThat(toDoRepository.count()).isEqualTo(0);
     }
-    
+
     @Test
     public void shouldThrowErrorWhenAnInvalidIdIsRetrieved() {
         Long nonExistentId = 10000L;
@@ -120,7 +122,7 @@ public class ToDoServiceTest {
         assertEquals(savedItem.getStatus(), getItem.getStatus());
         assertEquals(savedItem.getCreatedAt(), getItem.getCreatedAt());
         assertNull(getItem.getCompletedAt());
-        
+
         ToDoItem updatedItem = toDoService.changeToDoStatus(savedItem.getId());
         ToDoItem getUpdatedItem = toDoService.getToDoItemById(updatedItem.getId());
         assertEquals(updatedItem.getStatus(), getUpdatedItem.getStatus());
@@ -141,7 +143,7 @@ public class ToDoServiceTest {
         ToDoItem getUpdatedItem = toDoService.getToDoItemById(updatedItem.getId());
         assertEquals(updatedItem.getStatus(), getUpdatedItem.getStatus());
         assertEquals(updatedItem.getCompletedAt(), getUpdatedItem.getCompletedAt());
-        
+
         ToDoItem revertItemToPending = toDoService.changeToDoStatus(savedItem.getId());
         ToDoItem getRevertItemToPending = toDoService.getToDoItemById(revertItemToPending.getId());
         assertEquals(revertItemToPending.getStatus(), getRevertItemToPending.getStatus());
@@ -153,7 +155,7 @@ public class ToDoServiceTest {
         List<ToDoItemRequest> toDoList = new ArrayList<>();
         toDoList.add(new ToDoItemRequest("Cook", "Cook Adobo"));
         toDoList.add(new ToDoItemRequest("Eat", "Eat Adobo"));
-        toDoList.add(new ToDoItemRequest("DishWash", "Wash Dishes"));     
+        toDoList.add(new ToDoItemRequest("DishWash", "Wash Dishes"));
         toDoService.saveAllToDoItems(toDoList);
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
@@ -194,17 +196,17 @@ public class ToDoServiceTest {
         toDoList.add(new ToDoItemRequest(null, null));
         toDoList.add(new ToDoItemRequest(null, null));
         ToDoItemValidationException exception = assertThrows(ToDoItemValidationException.class, () -> toDoService.saveAllToDoItems(toDoList));
-        assertEquals("Title cannot be null or empty", exception.getMessage()); 
+        assertEquals("Title cannot be null or empty", exception.getMessage());
     }
 
     @Test
     public void shouldUpdateAValidToDoItem() {
         ToDoItemRequest todo = new ToDoItemRequest("Read", "Read HeadFirst Java");
         ToDoItem savedToDoItem = toDoService.saveToDoItem(todo);
-        
+
         ToDoItem updatedToDoItem = toDoService.updateToDoItem(savedToDoItem.getId(), new ToDoItemRequest("Read and Code", "Practice while reading HeadFirst Java"));
         ToDoItem getupdatedToDoItem = toDoService.getToDoItemById(updatedToDoItem.getId());
-        
+
         assertEquals(updatedToDoItem.getId(), getupdatedToDoItem.getId());
         assertEquals(updatedToDoItem.getTitle(), getupdatedToDoItem.getTitle());
         assertEquals(updatedToDoItem.getDescription(), getupdatedToDoItem.getDescription());

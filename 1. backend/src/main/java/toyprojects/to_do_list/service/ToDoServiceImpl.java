@@ -125,6 +125,7 @@ public class ToDoServiceImpl implements ToDoService {
             Jwt jwt = jwtAuthenticationToken.getToken();
             return jwt.getSubject(); // fetches the `sub` claim from the JWT
         }
+        // System.err.println("Expected JwtAuthenticationToken but got: " + authentication.getClass().getSimpleName());
         throw new IllegalStateException("Expected JwtAuthenticationToken");
     }
 }

@@ -34,4 +34,6 @@ build/
 
 ### exclusion of application.properties file ###
 *.properties
+./src/main/resources/application.properties
+*.pem
 # **/security/

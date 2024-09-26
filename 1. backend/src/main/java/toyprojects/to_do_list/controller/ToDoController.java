@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,18 +36,17 @@ public class ToDoController {
         this.toDoService = toDoService;
     }
 
-    // @PostAuthorize("returnObject.body.owner == principal.attributes['sub']")
-    // @PostAuthorize("returnObject != null")
+    @PreAuthorize("hasAuthority('SCOPE_todo:read')")
     @GetMapping("/{requestedId}")
     public ResponseEntity<ToDoItem> getToDoItem(@PathVariable Long requestedId) {
-        ToDoItem getToDoItem = toDoService.getToDoItemById(requestedId);
-        if (getToDoItem == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(getToDoItem);   
+            ToDoItem getToDoItem = toDoService.getToDoItemById(requestedId);
+            if (getToDoItem == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(getToDoItem);   
     }
 
-    // @PostAuthorize("returnObject.body.owner == principal.attributes['sub']")
+    @PreAuthorize("hasAuthority('SCOPE_todo:read')")
     @GetMapping("/all")
     public ResponseEntity<Page<ToDoItem>> getAllToDoItem(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "id,asc") String[] sort) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by(sort[0]).ascending());
@@ -54,6 +54,7 @@ public class ToDoController {
         return ResponseEntity.ok(toDoItemsPage);
     }
 
+    @PreAuthorize("hasAuthority('SCOPE_todo:write')")
     @PostMapping
     public ResponseEntity<Void> createToDoItem(@Valid @RequestBody ToDoItemRequest todo) {
         ToDoItem savedToDoItem = toDoService.saveToDoItem(todo);
@@ -64,31 +65,35 @@ public class ToDoController {
         return ResponseEntity.created(locationofNewToDoItem).build();
     }
 
+    @PreAuthorize("hasAuthority('SCOPE_todo:write')")
     @PostMapping("/saveAll")
     public ResponseEntity<Void> saveAllToDoItems(@Valid @RequestBody List<ToDoItemRequest> toDoItems) {
         toDoService.saveAllToDoItems(toDoItems);
         return ResponseEntity.ok().build();
     }
     
-    
+    @PreAuthorize("hasAuthority('SCOPE_todo:update')")
     @PutMapping("/{id}/statusUpdate")
     public ResponseEntity<Void> updateToDoItem(@PathVariable Long id) {
         toDoService.changeToDoStatus(id);      
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasAuthority('SCOPE_todo:update')")
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateToDoItem(@PathVariable Long id, @Valid @RequestBody ToDoItemRequest toDoItem) {
         toDoService.updateToDoItem(id, toDoItem);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasAuthority('SCOPE_todo:delete')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteToDoItem(@PathVariable Long id) {
         toDoService.deleteToDoItem(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('SCOPE_todo:delete')")
     @DeleteMapping("/all") 
     public ResponseEntity<Void> deleteAllToDoItems() {
         toDoService.deleteAllToDoItems();
