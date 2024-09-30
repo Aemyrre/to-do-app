@@ -24,6 +24,7 @@ public class ToDoListJsonTest {
 
     ToDoItem[] toDoItems;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         toDoItems = Arrays.array(

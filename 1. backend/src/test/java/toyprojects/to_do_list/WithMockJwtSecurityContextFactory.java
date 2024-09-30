@@ -22,6 +22,7 @@ public class WithMockJwtSecurityContextFactory implements WithSecurityContextFac
                 .header("alg", "none")
                 .claim("sub", mockJwt.subject())
                 .claim("scope", mockJwt.scope()) 
+                .issuer("https://ra8bitegg-dev.us.auth0.com/")
                 .build();
 
         // Convert the scope claim into granted authorities

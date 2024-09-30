@@ -12,6 +12,6 @@ import org.springframework.security.test.context.support.WithSecurityContext;
 @WithSecurityContext(factory = WithMockJwtSecurityContextFactory.class)
 public @interface WithMockJwt {
     String subject() default "default-subject"; // Set a default subject value
-    String scope() default "default-scope";
+    String[] scope() default "default-scope";
 }
 

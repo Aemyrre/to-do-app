@@ -28,11 +28,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ToDoItemNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleToDoItemNotFoundException(ToDoItemNotFoundException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Not Found", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Id Not Found", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    /* Depracated Method */
+    /* Deprecated Method */
     // @ExceptionHandler(ToDoIdValidationException.class)
     // public ResponseEntity<ErrorResponse> handleToDoIdValidationException(ToDoIdValidationException ex) {
     //     ErrorResponse errorResponse = new ErrorResponse("Id not the same", ex.getMessage());
