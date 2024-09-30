@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidInputException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidInputException(InvalidInputException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Input is not valid", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     /* Deprecated Method */
     // @ExceptionHandler(ToDoIdValidationException.class)
     // public ResponseEntity<ErrorResponse> handleToDoIdValidationException(ToDoIdValidationException ex) {

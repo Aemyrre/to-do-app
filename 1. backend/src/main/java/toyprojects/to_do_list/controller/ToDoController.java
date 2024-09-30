@@ -49,7 +49,10 @@ public class ToDoController {
     @PreAuthorize("hasAuthority('SCOPE_todo:read')")
     @GetMapping("/all")
     public ResponseEntity<Page<ToDoItem>> getAllToDoItem(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "id,asc") String[] sort) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(sort[0]).ascending());
+        Sort.Direction direction = sort.length > 1 && sort[1].equalsIgnoreCase("asc")
+            ? Sort.Direction.ASC
+            : Sort.Direction.DESC;
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(direction, sort[0]));
         Page<ToDoItem> toDoItemsPage = toDoService.getAllToDoItems(pageable);
         return ResponseEntity.ok(toDoItemsPage);
     }
@@ -58,18 +61,22 @@ public class ToDoController {
     @PostMapping
     public ResponseEntity<Void> createToDoItem(@Valid @RequestBody ToDoItemRequest todo) {
         ToDoItem savedToDoItem = toDoService.saveToDoItem(todo);
-        URI locationofNewToDoItem = UriComponentsBuilder
+        URI locationOfNewToDoItem = UriComponentsBuilder
             .fromPath("/todo/{id}")
             .buildAndExpand(savedToDoItem.getId())
             .toUri();
-        return ResponseEntity.created(locationofNewToDoItem).build();
+        return ResponseEntity.created(locationOfNewToDoItem).build();
     }
 
     @PreAuthorize("hasAuthority('SCOPE_todo:write')")
     @PostMapping("/saveAll")
     public ResponseEntity<Void> saveAllToDoItems(@Valid @RequestBody List<ToDoItemRequest> toDoItems) {
         toDoService.saveAllToDoItems(toDoItems);
-        return ResponseEntity.ok().build();
+        URI locationOfNewToDoItem = UriComponentsBuilder
+            .fromPath("/todo/all")
+            .buildAndExpand()
+            .toUri();
+        return ResponseEntity.created(locationOfNewToDoItem).build();
     }
     
     @PreAuthorize("hasAuthority('SCOPE_todo:update')")
@@ -99,5 +106,4 @@ public class ToDoController {
         toDoService.deleteAllToDoItems();
         return ResponseEntity.noContent().build();
     }
-
 }

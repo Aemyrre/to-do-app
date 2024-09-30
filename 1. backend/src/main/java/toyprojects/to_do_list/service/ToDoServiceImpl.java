@@ -1,11 +1,13 @@
 package toyprojects.to_do_list.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -14,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import toyprojects.to_do_list.constants.TaskStatus;
+import toyprojects.to_do_list.constants.ValidEntityField;
 import toyprojects.to_do_list.entity.ToDoItem;
 import toyprojects.to_do_list.entity.ToDoItemRequest;
+import toyprojects.to_do_list.exception.InvalidInputException;
 import toyprojects.to_do_list.exception.ToDoItemNotFoundException;
 import toyprojects.to_do_list.exception.ToDoItemValidationException;
 import toyprojects.to_do_list.repository.ToDoRepository;
@@ -58,6 +62,7 @@ public class ToDoServiceImpl implements ToDoService {
     @Override
     @Transactional(readOnly = true)
     public Page<ToDoItem> getAllToDoItems(Pageable pageable) {
+        if (!validateSortInput(pageable)) throw new InvalidInputException();
         return toDoRepository.findAll(pageable, getCurrentUserSubject());
     }
 
@@ -104,12 +109,16 @@ public class ToDoServiceImpl implements ToDoService {
         return toDoRepository.save(updatedToDoItem);
     }
 
-    /* depracated method */ 
-    // private void validateToDoItem(ToDoItem todo) {
-    //     if (todo.getTitle() == null || todo.getTitle().isBlank()) {
-    //         throw new ToDoItemValidationException();
-    //     }
-    // }
+    // Helper method to get the `sub` claim from the current authentication
+    @Override
+    public String getCurrentUserSubject() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            Jwt jwt = jwtAuthenticationToken.getToken();
+            return jwt.getSubject();
+        }
+        throw new IllegalStateException("Expected JwtAuthenticationToken");
+    }
 
     private void validateToDoItem(ToDoItemRequest todo) {
         if (todo.getTitle() == null || todo.getTitle().isBlank()) {
@@ -117,15 +126,28 @@ public class ToDoServiceImpl implements ToDoService {
         }
     }
 
-    // Helper method to get the `sub` claim from the current authentication
-    @Override
-    public String getCurrentUserSubject() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
-            Jwt jwt = jwtAuthenticationToken.getToken();
-            return jwt.getSubject(); // fetches the `sub` claim from the JWT
-        }
-        // System.err.println("Expected JwtAuthenticationToken but got: " + authentication.getClass().getSimpleName());
-        throw new IllegalStateException("Expected JwtAuthenticationToken");
-    }
+    private boolean validateSortInput(Pageable pageable) {
+        boolean isValid = true;
+        Sort sort = pageable.getSort();
+
+            for (Sort.Order order : sort) {
+                String property = order.getProperty();
+                String direction = order.getDirection().name();
+                
+                isValid = Arrays.stream(ValidEntityField.values())
+                    .anyMatch(sortField -> sortField.name().equalsIgnoreCase(property));
+                
+                if (!isValid) {
+                    return false;
+                }
+
+                isValid = direction.equalsIgnoreCase("ASC") || direction.equalsIgnoreCase("DESC");
+
+                if (!isValid) {
+                    return false;
+                }
+            }
+
+            return isValid;   
+        } 
 }
