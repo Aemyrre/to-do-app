@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = true
+	symlinks = false
+	ignorecase = true
+[remote "origin"]
+	url = D:\\0. Ramyr\\0. Programming\\00. toy_codes\\0. backup\\to-do-list\\0_git-back-up\\1_to-do-list
+	fetch = +refs/*:refs/*
+	mirror = true
