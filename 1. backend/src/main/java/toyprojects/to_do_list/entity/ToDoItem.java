@@ -26,7 +26,7 @@ import toyprojects.to_do_list.constants.TaskStatus;
 public class ToDoItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "owner", nullable = false)
