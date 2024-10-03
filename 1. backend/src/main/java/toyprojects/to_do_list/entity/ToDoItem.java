@@ -15,8 +15,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import toyprojects.to_do_list.constants.TaskStatus;
@@ -28,7 +26,7 @@ import toyprojects.to_do_list.constants.TaskStatus;
 public class ToDoItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "owner", nullable = false)
@@ -47,12 +45,12 @@ public class ToDoItem {
     private TaskStatus status;
     
     @Column(name = "created_at", nullable = false)
-    @Temporal(TemporalType.DATE)
+    // @Temporal(TemporalType.DATE) //removed as The @Temporal annotation is used with java.util.Date or java.util.Calendar, not LocalDate.
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate createdAt;
 
     @Column(name = "completed_at")
-    @Temporal(TemporalType.DATE)
+    // @Temporal(TemporalType.DATE) //removed as The @Temporal annotation is used with java.util.Date or java.util.Calendar, not LocalDate.
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate completedAt;
 
