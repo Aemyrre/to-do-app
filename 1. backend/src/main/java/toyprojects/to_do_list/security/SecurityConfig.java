@@ -26,6 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationEntryPoint entryPoint) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/api-docs", "/swagger-ui-custom.html").permitAll()
                 .requestMatchers(HttpMethod.GET, "/todo/**").hasAuthority("SCOPE_todo:read")
                 .requestMatchers(HttpMethod.POST, "/todo", "/todo/**").hasAuthority("SCOPE_todo:write")
                 .requestMatchers(HttpMethod.PUT, "/todo/**").hasAuthority("SCOPE_todo:update")
